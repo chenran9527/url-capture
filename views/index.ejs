@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <style>
+      body{
+        overflow:auto;
+        line-height:1;
+        font-size:12px;
+        font-family:"\5B8B\4F53","Arial";
+      }
+      li{
+        list-style:none;
+      }
+    </style>
+  </head>
+  <body>
+  <div id="app">
+    <div>抓取地址：<input v-model="url" style="width: 200px;"/></div>
+    <div>前缀：<input v-model="prefix" style="width: 200px;"/>（页面中的下载地址使用相对路径时，补全路径才能下载）</div>
+    <div>匹配正则式：<input v-model="reg" style="width: 200px;"/><input type="button" value="提取" @click="captureUrl()"></div>
+    <div>抓取内容:
+      <ul >
+        <li v-for="temp in urlArr">{{temp}}</li>
+      </ul>
+    </div>
+    <div>网址内容：<textarea v-model="html" cols="300" rows="30"></textarea></div>
+  </div>
+  <script src="js/vue.js"></script>
+  <script src="js/vue-resource.js"></script>
+  <script>
+    new Vue({
+        el:'#app',
+        data:{
+            url:'http://data.ceda.ac.uk/badc/accmip/data/GISS/GISS-E2-R/accrcp26/ACCMIP-hourly/r1i1p3/v1/mmrpm2p5/',
+            reg: 'mmrpm2p5_ACCMIP[\\\w\\\_-]*\\\.nc',
+            prefix: 'http://data.ceda.ac.uk/badc/accmip/data/GISS/GISS-E2-R/accrcp26/ACCMIP-hourly/r1i1p3/v1/mmrpm2p5/',
+            html:'',
+            urlArr:null
+        },
+        methods:{
+            captureUrl:function () {
+                this.$http.post('/getUrlInfo', {url:this.url,reg:this.reg,prefix:this.prefix})
+                    .then(function(response) {
+                        var info = response.data;
+                        this.html = info.html;
+                        this.urlArr = info.urlArr;
+                    })
+            }
+        }
+    });
+
+  </script>
+  </body>
+</html>
